@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 function Dashboard() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user"))
+  );
 
   const [formData, setFormData] = useState({
     accountNumber: "",
@@ -16,6 +18,7 @@ function Dashboard() {
     fetchTransactions();
   }, []);
 
+  // GET TRANSACTIONS
   const fetchTransactions = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -35,6 +38,7 @@ function Dashboard() {
     }
   };
 
+  // HANDLE INPUT
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -42,12 +46,12 @@ function Dashboard() {
     });
   };
 
+  // SEND MONEY
   const handleTransfer = async (e) => {
     e.preventDefault();
 
     const amountNum = Number(formData.amount);
 
-    // 🛑 VALIDATION
     if (
       !formData.accountNumber ||
       !formData.amount ||
@@ -77,29 +81,36 @@ function Dashboard() {
 
       alert(response.data.message);
 
-      // 🚨 IMPORTANT FIX:
-      // DO NOT manually adjust balance
-      // Backend is source of truth
-
-      const updatedUser = {
-        ...user,
-        balance: user.balance, // keep same, or refresh from backend later
-      };
-
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
+      // RESET FORM
       setFormData({
         accountNumber: "",
         amount: "",
       });
 
-      fetchTransactions(); // refresh history
+      // REFRESH DATA (IMPORTANT FIX)
+      fetchTransactions();
+
+      // OPTIONAL: refresh user from localStorage balance update
+      const updated = {
+        ...user,
+        balance: user.balance - amountNum,
+      };
+
+      setUser(updated);
+      localStorage.setItem("user", JSON.stringify(updated));
 
     } catch (error) {
       alert(error.response?.data?.message || "Transfer failed");
     } finally {
       setLoading(false);
     }
+  };
+
+  // LOGOUT
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
   };
 
   return (
@@ -113,18 +124,14 @@ function Dashboard() {
           </h1>
 
           <button
-            onClick={() => {
-              localStorage.removeItem("token");
-              localStorage.removeItem("user");
-              window.location.href = "/login";
-            }}
+            onClick={handleLogout}
             className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500"
           >
             Logout
           </button>
         </div>
 
-        {/* USER CARD */}
+        {/* USER INFO */}
         <div className="bg-white p-6 rounded-xl shadow-md mb-8">
           <h2 className="text-2xl font-semibold mb-4">
             Welcome, {user?.name}
@@ -138,11 +145,17 @@ function Dashboard() {
 
         {/* QUICK ACTIONS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <a href="/deposit" className="bg-green-600 text-white p-6 rounded-xl text-center">
+          <a
+            href="/deposit"
+            className="bg-green-600 text-white p-6 rounded-xl text-center"
+          >
             Deposit Money
           </a>
 
-          <a href="/withdraw" className="bg-red-600 text-white p-6 rounded-xl text-center">
+          <a
+            href="/withdraw"
+            className="bg-red-600 text-white p-6 rounded-xl text-center"
+          >
             Withdraw Money
           </a>
         </div>
@@ -183,19 +196,19 @@ function Dashboard() {
           </form>
         </div>
 
-        {/* TRANSACTION HISTORY */}
+        {/* TRANSACTIONS */}
         <div className="bg-white p-6 rounded-xl shadow-md">
           <h2 className="text-2xl font-semibold mb-6">
             Transaction History
           </h2>
 
-          {transactions.map((transaction) => (
-            <div key={transaction._id} className="border p-4 mb-3 rounded-lg">
-              <p>Type: {transaction.type}</p>
-              <p>Amount: ₦{transaction.amount}</p>
-              <p>Receiver: {transaction.receiver?.name || "N/A"}</p>
+          {transactions.map((t) => (
+            <div key={t._id} className="border p-4 mb-3 rounded-lg">
+              <p>Type: {t.type}</p>
+              <p>Amount: ₦{t.amount}</p>
+              <p>Receiver: {t.receiver?.name || "N/A"}</p>
               <p>
-                Date: {new Date(transaction.createdAt).toLocaleString()}
+                Date: {new Date(t.createdAt).toLocaleString()}
               </p>
             </div>
           ))}
