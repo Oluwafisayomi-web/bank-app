@@ -11,7 +11,7 @@ function Withdraw() {
       const token = localStorage.getItem("token");
       const response = await axios.put(
     //   const response = await axios.post(
-        "http://localhost:5000/api/transactions/withdraw",
+        "https://bank-app-lf5s.onrender.com/api/transactions/withdraw",
         {
           amount,
         },

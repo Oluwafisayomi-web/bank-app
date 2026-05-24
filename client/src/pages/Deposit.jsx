@@ -11,7 +11,7 @@ function Deposit() {
       const token = localStorage.getItem("token");
 
       const response = await axios.post(
-        "http://localhost:5000/api/transactions/deposit",
+        "https://bank-app-lf5s.onrender.com/api/transactions/deposit",
         // "http://localhost:5000/api/account/fund",
         {
           amount,

@@ -13,7 +13,8 @@ function AdminDashboard() {
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        "http://localhost:5000/api/admin/users",
+        "https://bank-app-lf5s.onrender.com/api/admin/users",
+        // "http://localhost:5000/api/admin/users",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -32,7 +33,8 @@ function AdminDashboard() {
       const token = localStorage.getItem("token");
 
       const response = await axios.delete(
-        `http://localhost:5000/api/admin/user/${id}`,
+
+        `https://bank-app-lf5s.onrender.com/api/admin/user/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

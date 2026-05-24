@@ -20,7 +20,7 @@ function Dashboard() {
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        "http://localhost:5000/api/transactions/history",
+        "https://bank-app-lf5s.onrender.com/api/transactions/history",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -48,7 +48,7 @@ function Dashboard() {
       const token = localStorage.getItem("token");
 
       const response = await axios.post(
-        "http://localhost:5000/api/transactions/send",
+        "https://bank-app-lf5s.onrender.com/api/transactions/send",
         formData,
         {
           headers: {
