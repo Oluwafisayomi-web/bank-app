@@ -3,17 +3,27 @@ import axios from "axios";
 
 function Withdraw() {
   const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleWithdraw = async (e) => {
     e.preventDefault();
 
+    const amountNum = Number(amount);
+
+    // 🛑 FRONTEND VALIDATION (IMPORTANT)
+    if (!amount || isNaN(amountNum) || amountNum <= 0) {
+      return alert("Enter a valid amount greater than 0");
+    }
+
     try {
+      setLoading(true);
+
       const token = localStorage.getItem("token");
+
       const response = await axios.put(
-    //   const response = await axios.post(
         "https://bank-app-lf5s.onrender.com/api/transactions/withdraw",
         {
-          amount,
+          amount: amountNum, // ✅ always number
         },
         {
           headers: {
@@ -32,17 +42,15 @@ function Withdraw() {
         balance: response.data.balance,
       };
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(updatedUser)
-      );
+      localStorage.setItem("user", JSON.stringify(updatedUser));
 
       setAmount("");
     } catch (error) {
       alert(
-        error.response?.data?.message ||
-          "Withdrawal failed"
+        error.response?.data?.message || "Withdrawal failed"
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,10 +61,7 @@ function Withdraw() {
           Withdraw Money
         </h1>
 
-        <form
-          onSubmit={handleWithdraw}
-          className="space-y-4"
-        >
+        <form onSubmit={handleWithdraw} className="space-y-4">
           <input
             type="number"
             placeholder="Enter amount"
@@ -67,9 +72,10 @@ function Withdraw() {
 
           <button
             type="submit"
-            className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-500"
+            disabled={loading}
+            className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-500 disabled:opacity-50"
           >
-            Withdraw
+            {loading ? "Processing..." : "Withdraw"}
           </button>
         </form>
       </div>

@@ -3,18 +3,27 @@ import axios from "axios";
 
 function Deposit() {
   const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleDeposit = async (e) => {
     e.preventDefault();
 
+    const amountNum = Number(amount);
+
+    // 🛑 FRONTEND VALIDATION
+    if (!amount || isNaN(amountNum) || amountNum <= 0) {
+      return alert("Enter a valid amount greater than 0");
+    }
+
     try {
+      setLoading(true);
+
       const token = localStorage.getItem("token");
 
       const response = await axios.post(
         "https://bank-app-lf5s.onrender.com/api/transactions/deposit",
-        // "http://localhost:5000/api/account/fund",
         {
-          amount,
+          amount: amountNum, // ✅ always number
         },
         {
           headers: {
@@ -33,14 +42,13 @@ function Deposit() {
         balance: response.data.balance,
       };
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(updatedUser)
-      );
+      localStorage.setItem("user", JSON.stringify(updatedUser));
 
       setAmount("");
     } catch (error) {
-      alert(error.response?.data?.message);
+      alert(error.response?.data?.message || "Deposit failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,10 +59,7 @@ function Deposit() {
           Deposit Money
         </h1>
 
-        <form
-          onSubmit={handleDeposit}
-          className="space-y-4"
-        >
+        <form onSubmit={handleDeposit} className="space-y-4">
           <input
             type="number"
             placeholder="Enter amount"
@@ -65,9 +70,10 @@ function Deposit() {
 
           <button
             type="submit"
-            className="w-full bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-700"
+            disabled={loading}
+            className="w-full bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
-            Deposit
+            {loading ? "Processing..." : "Deposit"}
           </button>
         </form>
       </div>
