@@ -16,6 +16,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/transactions", (req, res, next) => {
+  console.log("HIT TRANSACTIONS BASE");
+  next();
+}, transactionRoutes);
 // Test route
 app.get("/", (req, res) => {
   res.send("Bank API Running...");
@@ -36,3 +40,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
