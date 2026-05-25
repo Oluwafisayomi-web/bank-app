@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Dashboard() {
@@ -14,6 +14,8 @@ function Dashboard() {
 
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTransactions();
@@ -132,7 +134,7 @@ function Dashboard() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   return (
