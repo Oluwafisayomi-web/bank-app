@@ -1,29 +1,20 @@
 import { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 function Deposit() {
   const [amount, setAmount] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleDeposit = async (e) => {
     e.preventDefault();
 
-    const amountNum = Number(amount);
-
-    // 🛑 FRONTEND VALIDATION
-    if (!amount || isNaN(amountNum) || amountNum <= 0) {
-      return alert("Enter a valid amount greater than 0");
-    }
-
     try {
-      setLoading(true);
-
       const token = localStorage.getItem("token");
 
       const response = await axios.post(
-        "https://bank-app-lf5s.onrender.com/api/transactions/deposit",
+        "http://localhost:5000/api/account/fund",
         {
-          amount: amountNum, // ✅ always number
+          amount,
         },
         {
           headers: {
@@ -34,7 +25,6 @@ function Deposit() {
 
       alert(response.data.message);
 
-      // update local user balance
       const user = JSON.parse(localStorage.getItem("user"));
 
       const updatedUser = {
@@ -42,38 +32,57 @@ function Deposit() {
         balance: response.data.balance,
       };
 
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+      localStorage.setItem(
+        "user",
+        JSON.stringify(updatedUser)
+      );
 
       setAmount("");
     } catch (error) {
-      alert(error.response?.data?.message || "Deposit failed");
-    } finally {
-      setLoading(false);
+      alert(error.response?.data?.message);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center items-center">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h1 className="text-3xl font-bold text-blue-900 mb-6">
+    <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <div className="flex justify-between items-center mb-6">
+          <Link
+            to="/dashboard"
+            className="text-blue-900 font-semibold hover:underline"
+          >
+            ← Dashboard
+          </Link>
+
+          <Link
+            to="/withdraw"
+            className="text-red-600 font-semibold hover:underline"
+          >
+            Withdraw
+          </Link>
+        </div>
+
+        <h1 className="text-3xl font-bold text-blue-900 mb-6 text-center">
           Deposit Money
         </h1>
 
-        <form onSubmit={handleDeposit} className="space-y-4">
+        <form
+          onSubmit={handleDeposit}
+          className="space-y-4"
+        >
           <input
             type="number"
             placeholder="Enter amount"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full border p-3 rounded-lg"
+            className="w-full border p-4 rounded-lg outline-none focus:border-blue-900"
           />
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="w-full bg-green-600 text-white py-4 rounded-lg hover:bg-green-500 transition"
           >
-            {loading ? "Processing..." : "Deposit"}
+            Deposit Funds
           </button>
         </form>
       </div>
